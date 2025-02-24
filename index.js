@@ -1,16 +1,15 @@
-const API = "https://fsa-crud-2aa9294fe819.herokuapp.com/api/2411-FTB-ET-WEB-PT/events"
+const API = "https://fsa-crud-2aa9294fe819.herokuapp.com/api/2411-FTB-ET-WEB-PT/events";
 
 const state = {
   events: [],
 };
-
 
 const fetchAllEvents = async () => {
   try {
     const response = await fetch(API);
     const json = await response.json();
 
-    state.recipes = json.data;
+    state.events = json.data; // Fix: Changed from state.recipes to state.events
 
     renderAllEvents();
   } catch (error) {
@@ -20,7 +19,6 @@ const fetchAllEvents = async () => {
 
 const createEvents = async (name, imageUrl, description, date) => {
   try {
-    
     await fetch(API, {
       method: "POST",
       body: JSON.stringify({
@@ -34,7 +32,7 @@ const createEvents = async (name, imageUrl, description, date) => {
       },
     });
 
-    fetchEvents();
+    fetchAllEvents(); // Fix: Changed from fetchEvents() to fetchAllEvents()
   } catch (error) {
     console.log("ERROR in createEvents", error);
   }
@@ -53,7 +51,7 @@ const removeEvent = async (id) => {
 
 const renderAllEvents = () => {
   const eventsContainer = document.getElementById("events-container");
-  const eventsList = state.recipes;
+  const eventsList = state.events; // Fix: Changed from state.recipes to state.events
 
   if (!eventsList || eventsList.length === 0) {
     eventsContainer.innerHTML = "<h3>No events found</h3>";
@@ -62,23 +60,23 @@ const renderAllEvents = () => {
 
   eventsContainer.innerHTML = "";
 
-  eventsList.forEach((events) => {
-    const eventsElement = document.createElement("div");
-    eventsElement.classList.add("events-card");
-    eventsElement.innerHTML = `
-            <h4>${events.name}</h4>
-            <img src="${events.imageUrl}" alt="${events.name}">
-            <p>${events.description}</p>
-            <button class="delete-button" data-id="${events.id}">Remove</button>
+  eventsList.forEach((event) => {
+    const eventElement = document.createElement("div");
+    eventElement.classList.add("events-card");
+    eventElement.innerHTML = `
+            <h4>${event.name}</h4>
+            <img src="${event.imageUrl}" alt="${event.name}">
+            <p>${event.description}</p>
+            <button class="delete-button" data-id="${event.id}">Remove</button>
         `;
-    eventsContainer.appendChild(eventsElement);
+    eventsContainer.appendChild(eventElement);
 
-    const deleteButton = eventsElement.querySelector(".delete-button");
-    
-    deleteButton.addEventListener("click", (event) => {
+    const deleteButton = eventElement.querySelector(".delete-button");
+
+    deleteButton.addEventListener("click", (e) => {
       try {
-        event.preventDefault();
-        removeEvents(events.id);
+        e.preventDefault();
+        removeEvent(event.id); // Fix: Changed from removeEvents() to removeEvent()
       } catch (error) {
         console.log(error);
       }
@@ -92,14 +90,13 @@ const addListenerToForm = () => {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    await createNewEvent(
+    await createEvents( // Fix: Changed from createNewEvent() to createEvents()
       form.name.value,
       form.imageUrl.value,
       form.description.value,
       form.date.value
     );
 
-   
     form.name.value = "";
     form.imageUrl.value = "";
     form.description.value = "";
@@ -107,11 +104,8 @@ const addListenerToForm = () => {
   });
 };
 
-
 const init = async () => {
-  
   await fetchAllEvents();
- 
   addListenerToForm();
 };
 
